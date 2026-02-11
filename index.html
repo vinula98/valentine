@@ -4,7 +4,6 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Will you be my Valentine?</title>
-
 <style>
 body{
   margin:0;
@@ -17,17 +16,20 @@ body{
   color:white;
   overflow:hidden;
 }
-
 .container{
   text-align:center;
   position:relative;
+  z-index:10;
 }
-
 h1{
   font-size:32px;
-  margin-bottom:20px;
+  margin-bottom:40px;
 }
-
+.button-area{
+  position:relative;
+  width:100vw;
+  height:200px;
+}
 button{
   padding:14px 22px;
   font-size:16px;
@@ -35,49 +37,59 @@ button{
   border:none;
   border-radius:12px;
   cursor:pointer;
-  position:absolute;
   transition:all 0.2s ease;
+  min-width:120px;
 }
-
 #yesBtn{
   background:#ff2d55;
   color:white;
-  left:40%;
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-160px, -50%);
+  z-index:20;
 }
-
+#yesBtn:hover{
+  background:#ff4d6d;
+  box-shadow:0 0 20px rgba(255, 45, 85, 0.5);
+}
 #noBtn{
   background:#333;
   color:white;
-  left:60%;
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(40px, -50%);
+  z-index:15;
 }
-
+#noBtn.moving{
+  transition:none;
+}
 canvas{
   position:fixed;
   top:0;
   left:0;
   pointer-events:none;
+  z-index:5;
 }
 </style>
 </head>
-
 <body>
-
 <canvas id="confetti"></canvas>
-
 <div class="container">
   <h1>Will you be my Valentine? ❤️</h1>
-  <button id="yesBtn">YES 💖</button>
-  <button id="noBtn">NO 🙃</button>
+  <div class="button-area">
+    <button id="yesBtn">YES 💖</button>
+    <button id="noBtn">NO 🙃</button>
+  </div>
 </div>
-
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-
 const yesBtn = document.getElementById("yesBtn");
 const noBtn = document.getElementById("noBtn");
+const buttonArea = document.querySelector(".button-area");
 const canvas = document.getElementById("confetti");
 const ctx = canvas.getContext("2d");
-
 let dodges = 0;
 const maxDodges = 6;
 
@@ -92,15 +104,26 @@ window.addEventListener("resize", resizeCanvas);
 // Move NO button
 function moveNo(){
   if(dodges >= maxDodges) return;
-
+  
   dodges++;
-
-  const x = Math.random() * (window.innerWidth - 150);
-  const y = Math.random() * (window.innerHeight - 80);
-
+  noBtn.classList.add('moving');
+  
+  // Remove the initial transform
+  noBtn.style.transform = 'none';
+  
+  // Get safe boundaries (keep button visible)
+  const btnWidth = noBtn.offsetWidth;
+  const btnHeight = noBtn.offsetHeight;
+  const maxX = window.innerWidth - btnWidth - 20;
+  const maxY = window.innerHeight - btnHeight - 20;
+  
+  // Random position within safe bounds
+  const x = Math.max(20, Math.random() * maxX);
+  const y = Math.max(20, Math.random() * maxY);
+  
   noBtn.style.left = x + "px";
   noBtn.style.top = y + "px";
-
+  
   const texts = [
     "NO 🙃",
     "NO? 👀",
@@ -109,7 +132,6 @@ function moveNo(){
     "Are you sure? 🥺",
     "Okay fine you win 😭"
   ];
-
   noBtn.innerText = texts[Math.min(dodges, texts.length-1)];
 }
 
@@ -123,7 +145,6 @@ noBtn.addEventListener("touchstart", (e)=>{
 
 // Confetti
 function startConfetti(){
-
   const pieces = Array.from({length:150}, () => ({
     x: Math.random()*canvas.width,
     y: Math.random()*-canvas.height,
@@ -131,45 +152,34 @@ function startConfetti(){
     speed: 2+Math.random()*4,
     color: ["#ff2d55","#ff4d6d","#ffd166","#9b5cff","#4cc9f0"][Math.floor(Math.random()*5)]
   }));
-
   const start = Date.now();
-
   function animate(){
     ctx.clearRect(0,0,canvas.width,canvas.height);
-
     pieces.forEach(p=>{
       p.y += p.speed;
       ctx.fillStyle = p.color;
       ctx.fillRect(p.x,p.y,p.size,p.size);
     });
-
     if(Date.now() - start < 2500){
       requestAnimationFrame(animate);
     } else {
       ctx.clearRect(0,0,canvas.width,canvas.height);
     }
   }
-
   animate();
 }
 
 // YES click
 yesBtn.addEventListener("click", () => {
-
   startConfetti();
-
   // Wait 1.8 seconds then open WhatsApp
   setTimeout(()=>{
     window.location.href =
       "https://api.whatsapp.com/send?phone=61404781574&text=" +
       encodeURIComponent("I said YES to being your Valentine 😌❤️");
   }, 1800);
-
 });
-
 });
 </script>
-
 </body>
 </html>
-
