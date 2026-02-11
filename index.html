@@ -1,203 +1,426 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Will you be my Valentine?</title>
-<style>
-body{
-  margin:0;
-  height:100vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-family:Arial, sans-serif;
-  background:linear-gradient(135deg,#1b0f1f,#0f1020);
-  color:white;
-  overflow:hidden;
-  position:relative;
-}
-.container{
-  text-align:center;
-  position:relative;
-  z-index:10;
-}
-h1{
-  font-size:32px;
-  margin-bottom:60px;
-}
-.buttons{
-  display:flex;
-  gap:30px;
-  justify-content:center;
-  align-items:center;
-}
-button{
-  padding:14px 28px;
-  font-size:16px;
-  font-weight:bold;
-  border:none;
-  border-radius:12px;
-  cursor:pointer;
-  min-width:120px;
-}
-#yesBtn{
-  background:#ff2d55;
-  color:white;
-  z-index:20;
-}
-#yesBtn:hover{
-  background:#ff4d6d;
-  box-shadow:0 0 20px rgba(255, 45, 85, 0.5);
-}
-#noBtn{
-  background:#333;
-  color:white;
-  position:fixed;
-  z-index:15;
-}
-canvas{
-  position:fixed;
-  top:0;
-  left:0;
-  pointer-events:none;
-  z-index:5;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Be My Valentine? 💝</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #1a1a2e;
+            overflow: hidden;
+        }
+
+        #confetti-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 140, 66, 0.2);
+            padding: 60px 40px;
+            border-radius: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 30px rgba(255, 107, 53, 0.1);
+            max-width: 500px;
+            width: 90%;
+            position: relative;
+            z-index: 1;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            color: #ffffff;
+            margin-bottom: 20px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .question {
+            font-size: 1.8em;
+            color: #ffffff;
+            margin-bottom: 40px;
+            font-weight: 600;
+        }
+
+        .emoji {
+            font-size: 5em;
+            margin-bottom: 30px;
+            display: block;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .button-container {
+            position: relative;
+            height: 200px;
+            width: 100%;
+            margin-top: 30px;
+        }
+
+        button {
+            font-size: 1.3em;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        #yesBtn {
+            background: linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%);
+            color: white;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            top: 0;
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4);
+        }
+
+        #yesBtn:hover {
+            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.6);
+        }
+
+        #noBtn {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            top: 80px;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 15px rgba(240, 147, 251, 0.4);
+        }
+
+        #noBtn:hover {
+            box-shadow: 0 6px 20px rgba(240, 147, 251, 0.6);
+        }
+
+        .dodge-counter {
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: #aaa;
+            font-style: italic;
+        }
+
+        .success-message {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .success-message h2 {
+            color: #ffffff;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
+        .success-message p {
+            font-size: 1.3em;
+            color: #ffffff;
+            margin-bottom: 30px;
+        }
+
+        .whatsapp-btn {
+            background: #25D366;
+            color: white;
+            text-decoration: none;
+            display: inline-block;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 1.2em;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(37, 211, 102, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .whatsapp-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(37, 211, 102, 0.6);
+        }
+
+        .no-message {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .no-message h2 {
+            color: #ffffff;
+            font-size: 2.2em;
+            margin-bottom: 20px;
+        }
+
+        .no-message p {
+            font-size: 1.2em;
+            color: #ffffff;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .no-message .follow-line {
+            font-size: 1em;
+            color: #aaa;
+            font-style: italic;
+            margin-top: 25px;
+        }
+    </style>
 </head>
 <body>
-<canvas id="confetti"></canvas>
-<div class="container">
-  <h1>Will you be my Valentine? ❤️</h1>
-  <div class="buttons">
-    <button id="yesBtn">YES 💖</button>
-    <button id="noBtn">NO 🙃</button>
-  </div>
-</div>
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-const yesBtn = document.getElementById("yesBtn");
-const noBtn = document.getElementById("noBtn");
-const canvas = document.getElementById("confetti");
-const ctx = canvas.getContext("2d");
-let dodges = 0;
-const maxDodges = 6;
-let noBtnInitialized = false;
+    <canvas id="confetti-canvas"></canvas>
+    
+    <div class="container">
+        <div id="question-section">
+            <span class="emoji">💝</span>
+            <h1>Hey There! 💕</h1>
+            <p class="question">Will you be my Valentine?</p>
+            
+            <div class="button-container">
+                <button id="yesBtn">YES! 💖</button>
+                <button id="noBtn">NO 🙃</button>
+            </div>
+            
+            <div class="dodge-counter" id="counter"></div>
+        </div>
 
-// Resize canvas
-function resizeCanvas(){
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-}
-resizeCanvas();
-window.addEventListener("resize", resizeCanvas);
+        <div class="success-message" id="success-section">
+            <span class="emoji">🎉</span>
+            <h2>Yay! 🥰</h2>
+            <p>I'm so happy! Let's make this Valentine's Day special! 💕</p>
+            <a href="#" class="whatsapp-btn" id="whatsappBtn">
+                📱 Send me a message!
+            </a>
+        </div>
 
-// Initialize NO button position
-function initNoBtn() {
-  if (!noBtnInitialized) {
-    const rect = noBtn.getBoundingClientRect();
-    noBtn.style.left = rect.left + 'px';
-    noBtn.style.top = rect.top + 'px';
-    noBtnInitialized = true;
-  }
-}
+        <div class="no-message" id="no-section">
+            <span class="emoji">😌</span>
+            <h2 id="noTitle">Respectfully accepted 😌</h2>
+            <p id="noMsg">No stress at all. I still had to ask because you're special 💛</p>
+            <a href="#" class="whatsapp-btn" id="noWhatsappBtn" style="background: #667eea; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">
+                📱 Let's talk
+            </a>
+            <p class="follow-line" id="followLine">You can close this page now… unless you want to change your answer 👀</p>
+        </div>
+    </div>
 
-// Move NO button
-function moveNo(){
-  if(dodges >= maxDodges) return;
-  
-  initNoBtn(); // Make sure it's initialized first
-  dodges++;
-  
-  // Get button dimensions
-  const btnRect = noBtn.getBoundingClientRect();
-  const btnWidth = btnRect.width;
-  const btnHeight = btnRect.height;
-  
-  // Calculate safe boundaries with padding
-  const padding = 30;
-  const minX = padding;
-  const minY = padding;
-  const maxX = window.innerWidth - btnWidth - padding;
-  const maxY = window.innerHeight - btnHeight - padding;
-  
-  // Generate random position within safe bounds
-  let newX, newY;
-  let attempts = 0;
-  
-  do {
-    newX = minX + Math.random() * (maxX - minX);
-    newY = minY + Math.random() * (maxY - minY);
-    attempts++;
-  } while (attempts < 10 && (
-    // Make sure it's not too close to YES button
-    Math.abs(newX - yesBtn.getBoundingClientRect().left) < 200 &&
-    Math.abs(newY - yesBtn.getBoundingClientRect().top) < 100
-  ));
-  
-  // Ensure values are within bounds
-  newX = Math.max(minX, Math.min(maxX, newX));
-  newY = Math.max(minY, Math.min(maxY, newY));
-  
-  noBtn.style.left = newX + "px";
-  noBtn.style.top = newY + "px";
-  
-  const texts = [
-    "NO 🙃",
-    "NO? 👀",
-    "Try again 😛",
-    "Nope 😌",
-    "Are you sure? 🥺",
-    "Okay fine you win 😭"
-  ];
-  noBtn.innerText = texts[Math.min(dodges, texts.length-1)];
-}
+    <script>
+        const yesBtn = document.getElementById('yesBtn');
+        const noBtn = document.getElementById('noBtn');
+        const counter = document.getElementById('counter');
+        const questionSection = document.getElementById('question-section');
+        const successSection = document.getElementById('success-section');
+        const whatsappBtn = document.getElementById('whatsappBtn');
+        
+        let dodgeCount = 0;
+        const maxDodges = 6;
+        
+        const messages = [
+            "NO 🙃",
+            "Are you sure? 🤔",
+            "Really? 😢",
+            "Think again! 💭",
+            "Please? 🥺",
+            "Last chance! 😅",
+            "Okay fine you win 😭"
+        ];
 
-noBtn.addEventListener("mouseenter", moveNo);
-noBtn.addEventListener("touchstart", (e)=>{
-  if(dodges < maxDodges){
-    e.preventDefault();
-    moveNo();
-  }
-},{passive:false});
+        function getRandomPosition() {
+            const container = document.querySelector('.button-container');
+            const containerRect = container.getBoundingClientRect();
+            const btnRect = noBtn.getBoundingClientRect();
+            
+            const maxX = containerRect.width - btnRect.width;
+            const maxY = containerRect.height - btnRect.height;
+            
+            let randomX, randomY;
+            let attempts = 0;
+            const maxAttempts = 50;
+            
+            // Keep trying until we find a position that doesn't overlap with YES button
+            do {
+                randomX = Math.random() * maxX;
+                randomY = Math.random() * maxY;
+                attempts++;
+                
+                // Check if this position would overlap with YES button (which is at top: 0)
+                const wouldOverlap = randomY < 60; // YES button height + some padding
+                
+                if (!wouldOverlap || attempts >= maxAttempts) {
+                    break;
+                }
+            } while (true);
+            
+            return { x: randomX, y: randomY };
+        }
 
-// Confetti
-function startConfetti(){
-  const pieces = Array.from({length:150}, () => ({
-    x: Math.random()*canvas.width,
-    y: Math.random()*-canvas.height,
-    size: 5+Math.random()*8,
-    speed: 2+Math.random()*4,
-    color: ["#ff2d55","#ff4d6d","#ffd166","#9b5cff","#4cc9f0"][Math.floor(Math.random()*5)]
-  }));
-  const start = Date.now();
-  function animate(){
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    pieces.forEach(p=>{
-      p.y += p.speed;
-      ctx.fillStyle = p.color;
-      ctx.fillRect(p.x,p.y,p.size,p.size);
-    });
-    if(Date.now() - start < 2500){
-      requestAnimationFrame(animate);
-    } else {
-      ctx.clearRect(0,0,canvas.width,canvas.height);
-    }
-  }
-  animate();
-}
+        function moveNoButton() {
+            if (dodgeCount < maxDodges) {
+                const pos = getRandomPosition();
+                noBtn.style.left = pos.x + 'px';
+                noBtn.style.top = pos.y + 'px';
+                noBtn.style.transform = 'none';
+                
+                dodgeCount++;
+                noBtn.textContent = messages[dodgeCount];
+                counter.textContent = `Dodge attempts: ${dodgeCount}/${maxDodges} 😏`;
+                
+                if (dodgeCount === maxDodges) {
+                    setTimeout(() => {
+                        counter.textContent = `Okay, I'll stop moving now 😅`;
+                    }, 500);
+                }
+            }
+        }
 
-// YES click
-yesBtn.addEventListener("click", () => {
-  startConfetti();
-  // Wait 1.8 seconds then open WhatsApp
-  setTimeout(()=>{
-    window.location.href =
-      "https://api.whatsapp.com/send?phone=61404781574&text=" +
-      encodeURIComponent("I said YES to being your Valentine 😌❤️");
-  }, 1800);
-});
-});
-</script>
+        noBtn.addEventListener('mouseenter', moveNoButton);
+        noBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            moveNoButton();
+        });
+
+        // Handle actual "No" click after all dodges
+        noBtn.addEventListener('click', () => {
+            if (dodgeCount >= maxDodges) {
+                questionSection.style.display = 'none';
+                document.getElementById('no-section').style.display = 'block';
+            }
+        });
+
+        function createConfetti() {
+            const canvas = document.getElementById('confetti-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const confetti = [];
+            const confettiCount = 150;
+            const colors = ['#ff6b35', '#ff8c42', '#ffa500', '#ffb347', '#f093fb', '#f5576c', '#ffd700'];
+
+            for (let i = 0; i < confettiCount; i++) {
+                confetti.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height - canvas.height,
+                    r: Math.random() * 6 + 2,
+                    d: Math.random() * confettiCount,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    tilt: Math.floor(Math.random() * 10) - 10,
+                    tiltAngleIncremental: Math.random() * 0.07 + 0.05,
+                    tiltAngle: 0
+                });
+            }
+
+            function draw() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                for (let i = 0; i < confettiCount; i++) {
+                    const c = confetti[i];
+                    ctx.beginPath();
+                    ctx.lineWidth = c.r / 2;
+                    ctx.strokeStyle = c.color;
+                    ctx.moveTo(c.x + c.tilt + c.r / 3, c.y);
+                    ctx.lineTo(c.x + c.tilt, c.y + c.tilt + c.r / 5);
+                    ctx.stroke();
+                }
+
+                update();
+            }
+
+            function update() {
+                for (let i = 0; i < confettiCount; i++) {
+                    const c = confetti[i];
+                    c.tiltAngle += c.tiltAngleIncremental;
+                    c.y += (Math.cos(c.d) + 3 + c.r / 2) / 2;
+                    c.x += Math.sin(c.d);
+                    c.tilt = Math.sin(c.tiltAngle - i / 3) * 15;
+
+                    if (c.y > canvas.height) {
+                        confetti[i] = {
+                            x: Math.random() * canvas.width,
+                            y: -10,
+                            r: c.r,
+                            d: c.d,
+                            color: c.color,
+                            tilt: c.tilt,
+                            tiltAngleIncremental: c.tiltAngleIncremental,
+                            tiltAngle: c.tiltAngle
+                        };
+                    }
+                }
+            }
+
+            function animate() {
+                draw();
+                requestAnimationFrame(animate);
+            }
+
+            animate();
+        }
+
+        yesBtn.addEventListener('click', () => {
+            questionSection.style.display = 'none';
+            successSection.style.display = 'block';
+            createConfetti();
+        });
+
+        // WhatsApp integration - REPLACE WITH YOUR PHONE NUMBER
+        const phoneNumber = '61404781574'; // Replace with your WhatsApp number (include country code, no + or -)
+        
+        whatsappBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const message = encodeURIComponent('Yes! I would love to be your Valentine! 💕');
+            const whatsappURL = `https://wa.me/${phoneNumber}?text=${message}`;
+            window.open(whatsappURL, '_blank');
+        });
+
+        // WhatsApp for "No" response
+        const noWhatsappBtn = document.getElementById('noWhatsappBtn');
+        noWhatsappBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const message = encodeURIComponent('Hey, I saw your Valentine\'s ask. Let\'s chat 💬');
+            const whatsappURL = `https://wa.me/${phoneNumber}?text=${message}`;
+            window.open(whatsappURL, '_blank');
+        });
+
+        window.addEventListener('resize', () => {
+            const canvas = document.getElementById('confetti-canvas');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    </script>
 </body>
 </html>
