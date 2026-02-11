@@ -71,6 +71,14 @@
             animation: float 3s ease-in-out infinite;
         }
 
+        .flower-icon {
+            width: 200px;
+            height: auto;
+            margin: 0 auto 30px;
+            display: block;
+            animation: float 3s ease-in-out infinite;
+        }
+
         @keyframes float {
             0%, 100% { transform: translateY(0px); }
             50% { transform: translateY(-20px); }
@@ -78,7 +86,7 @@
 
         .button-container {
             position: relative;
-            height: 200px;
+            height: 300px;
             width: 100%;
             margin-top: 30px;
         }
@@ -199,6 +207,23 @@
             font-style: italic;
             margin-top: 25px;
         }
+
+        .back-btn {
+            background: transparent;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: #aaa;
+            padding: 10px 30px;
+            font-size: 1em;
+            margin-top: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            border-color: rgba(255, 255, 255, 0.6);
+            color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+        }
     </style>
 </head>
 <body>
@@ -206,9 +231,10 @@
     
     <div class="container">
         <div id="question-section">
-            <span class="emoji">💝</span>
-            <h1>Hey There! 💕</h1>
-            <p class="question">Will you be my Valentine?</p>
+            <img src="ranunculus.png" alt="Ranunculus flowers" class="flower-icon" />
+            <h2>So apparently I chose the worst possible day to fly to melbourne...</h2>
+            <h1>Before I leave, I have an important question for you...</h1>
+            <p class="question">Will you be my Valentine? ❤️</p>
             
             <div class="button-container">
                 <button id="yesBtn">YES! 💖</button>
@@ -221,10 +247,12 @@
         <div class="success-message" id="success-section">
             <span class="emoji">🎉</span>
             <h2>Yay! 🥰</h2>
-            <p>I'm so happy! Let's make this Valentine's Day special! 💕</p>
+            <p>I'm really glad you said yes 🥰</p>
             <a href="#" class="whatsapp-btn" id="whatsappBtn">
                 📱 Send me a message!
             </a>
+            <br>
+            <button class="back-btn" id="backFromYes">← Go Back</button>
         </div>
 
         <div class="no-message" id="no-section">
@@ -232,9 +260,10 @@
             <h2 id="noTitle">Respectfully accepted 😌</h2>
             <p id="noMsg">No stress at all. I still had to ask because you're special 💛</p>
             <a href="#" class="whatsapp-btn" id="noWhatsappBtn" style="background: #667eea; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">
-                📱 Let's talk
+                📱 Send me a message!
             </a>
             <p class="follow-line" id="followLine">You can close this page now… unless you want to change your answer 👀</p>
+            <button class="back-btn" id="backFromNo">← Go Back</button>
         </div>
     </div>
 
@@ -290,6 +319,9 @@
 
         function moveNoButton() {
             if (dodgeCount < maxDodges) {
+                // Play funny sound
+                playDodgeSound();
+                
                 const pos = getRandomPosition();
                 noBtn.style.left = pos.x + 'px';
                 noBtn.style.top = pos.y + 'px';
@@ -305,6 +337,26 @@
                     }, 500);
                 }
             }
+        }
+
+        // Create a fun "boop" sound using Web Audio API
+        function playDodgeSound() {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            // Create a playful "boop" sound
+            oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(400, audioContext.currentTime + 0.1);
+            
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.1);
         }
 
         noBtn.addEventListener('mouseenter', moveNoButton);
@@ -329,7 +381,7 @@
 
             const confetti = [];
             const confettiCount = 150;
-            const colors = ['#ff6b35', '#ff8c42', '#ffa500', '#ffb347', '#f093fb', '#f5576c', '#ffd700'];
+            const colors = ['#ffb3ba', '#ff9aa2', '#ff8c94', '#ffc5c8', '#90be6d', '#a8d5a3', '#ff8c42', '#ffa500'];
 
             for (let i = 0; i < confettiCount; i++) {
                 confetti.push({
@@ -403,7 +455,7 @@
         whatsappBtn.addEventListener('click', (e) => {
             e.preventDefault();
             const message = encodeURIComponent('Yes! I would love to be your Valentine! 💕');
-            const whatsappURL = `https://wa.me/${phoneNumber}?text=${message}`;
+            const whatsappURL = `https://api.whatsapp.com/${phoneNumber}?text=${message}`;
             window.open(whatsappURL, '_blank');
         });
 
@@ -412,8 +464,28 @@
         noWhatsappBtn.addEventListener('click', (e) => {
             e.preventDefault();
             const message = encodeURIComponent('Hey, I saw your Valentine\'s ask. Let\'s chat 💬');
-            const whatsappURL = `https://wa.me/${phoneNumber}?text=${message}`;
+            const whatsappURL = `https://api.whatsapp.com/${phoneNumber}?text=${message}`;
             window.open(whatsappURL, '_blank');
+        });
+
+        // Back button handlers
+        document.getElementById('backFromYes').addEventListener('click', () => {
+            successSection.style.display = 'none';
+            questionSection.style.display = 'block';
+            // Stop confetti by reloading (simple solution)
+            location.reload();
+        });
+
+        document.getElementById('backFromNo').addEventListener('click', () => {
+            document.getElementById('no-section').style.display = 'none';
+            questionSection.style.display = 'block';
+            // Reset dodge counter
+            dodgeCount = 0;
+            noBtn.textContent = messages[0];
+            noBtn.style.left = '50%';
+            noBtn.style.top = '80px';
+            noBtn.style.transform = 'translateX(-50%)';
+            counter.textContent = '';
         });
 
         window.addEventListener('resize', () => {
