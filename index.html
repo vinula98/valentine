@@ -15,6 +15,7 @@ body{
   background:linear-gradient(135deg,#1b0f1f,#0f1020);
   color:white;
   overflow:hidden;
+  position:relative;
 }
 .container{
   text-align:center;
@@ -23,30 +24,26 @@ body{
 }
 h1{
   font-size:32px;
-  margin-bottom:40px;
+  margin-bottom:60px;
 }
-.button-area{
-  position:relative;
-  width:100vw;
-  height:200px;
+.buttons{
+  display:flex;
+  gap:30px;
+  justify-content:center;
+  align-items:center;
 }
 button{
-  padding:14px 22px;
+  padding:14px 28px;
   font-size:16px;
   font-weight:bold;
   border:none;
   border-radius:12px;
   cursor:pointer;
-  transition:all 0.2s ease;
   min-width:120px;
 }
 #yesBtn{
   background:#ff2d55;
   color:white;
-  position:absolute;
-  left:50%;
-  top:50%;
-  transform:translate(-160px, -50%);
   z-index:20;
 }
 #yesBtn:hover{
@@ -56,14 +53,8 @@ button{
 #noBtn{
   background:#333;
   color:white;
-  position:absolute;
-  left:50%;
-  top:50%;
-  transform:translate(40px, -50%);
+  position:fixed;
   z-index:15;
-}
-#noBtn.moving{
-  transition:none;
 }
 canvas{
   position:fixed;
@@ -78,7 +69,7 @@ canvas{
 <canvas id="confetti"></canvas>
 <div class="container">
   <h1>Will you be my Valentine? ❤️</h1>
-  <div class="button-area">
+  <div class="buttons">
     <button id="yesBtn">YES 💖</button>
     <button id="noBtn">NO 🙃</button>
   </div>
@@ -87,11 +78,11 @@ canvas{
 document.addEventListener("DOMContentLoaded", () => {
 const yesBtn = document.getElementById("yesBtn");
 const noBtn = document.getElementById("noBtn");
-const buttonArea = document.querySelector(".button-area");
 const canvas = document.getElementById("confetti");
 const ctx = canvas.getContext("2d");
 let dodges = 0;
 const maxDodges = 6;
+let noBtnInitialized = false;
 
 // Resize canvas
 function resizeCanvas(){
@@ -101,28 +92,55 @@ function resizeCanvas(){
 resizeCanvas();
 window.addEventListener("resize", resizeCanvas);
 
+// Initialize NO button position
+function initNoBtn() {
+  if (!noBtnInitialized) {
+    const rect = noBtn.getBoundingClientRect();
+    noBtn.style.left = rect.left + 'px';
+    noBtn.style.top = rect.top + 'px';
+    noBtnInitialized = true;
+  }
+}
+
 // Move NO button
 function moveNo(){
   if(dodges >= maxDodges) return;
   
+  initNoBtn(); // Make sure it's initialized first
   dodges++;
-  noBtn.classList.add('moving');
   
-  // Remove the initial transform
-  noBtn.style.transform = 'none';
+  // Get button dimensions
+  const btnRect = noBtn.getBoundingClientRect();
+  const btnWidth = btnRect.width;
+  const btnHeight = btnRect.height;
   
-  // Get safe boundaries (keep button visible)
-  const btnWidth = noBtn.offsetWidth;
-  const btnHeight = noBtn.offsetHeight;
-  const maxX = window.innerWidth - btnWidth - 20;
-  const maxY = window.innerHeight - btnHeight - 20;
+  // Calculate safe boundaries with padding
+  const padding = 30;
+  const minX = padding;
+  const minY = padding;
+  const maxX = window.innerWidth - btnWidth - padding;
+  const maxY = window.innerHeight - btnHeight - padding;
   
-  // Random position within safe bounds
-  const x = Math.max(20, Math.random() * maxX);
-  const y = Math.max(20, Math.random() * maxY);
+  // Generate random position within safe bounds
+  let newX, newY;
+  let attempts = 0;
   
-  noBtn.style.left = x + "px";
-  noBtn.style.top = y + "px";
+  do {
+    newX = minX + Math.random() * (maxX - minX);
+    newY = minY + Math.random() * (maxY - minY);
+    attempts++;
+  } while (attempts < 10 && (
+    // Make sure it's not too close to YES button
+    Math.abs(newX - yesBtn.getBoundingClientRect().left) < 200 &&
+    Math.abs(newY - yesBtn.getBoundingClientRect().top) < 100
+  ));
+  
+  // Ensure values are within bounds
+  newX = Math.max(minX, Math.min(maxX, newX));
+  newY = Math.max(minY, Math.min(maxY, newY));
+  
+  noBtn.style.left = newX + "px";
+  noBtn.style.top = newY + "px";
   
   const texts = [
     "NO 🙃",
