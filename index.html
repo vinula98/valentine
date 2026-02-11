@@ -389,7 +389,7 @@
     <div class="container">
         <div id="question-section">
             <img src="ranunculus.png" alt="Ranunculus flowers" class="flower-icon" />
-            <p class="question">So apparently I chose the worst possible day to fly to Melbourne...</p>
+            <h2>So apparently I chose the worst possible day to fly to melbourne...</h2>
             <h1>Before I leave, I have an important question for you...</h1>
             <p class="question">Will you be my Valentine? ❤️</p>
             
@@ -612,8 +612,8 @@
         whatsappBtn.addEventListener('click', (e) => {
             e.preventDefault();
             const message = encodeURIComponent('Yes! I would love to be your Valentine! 💕');
-            const whatsappURL = `https://wa.me/${phoneNumber}?text=${message}`;
-            window.open(whatsappURL, '_blank');
+            const whatsappURL = `https://api.whatsapp.com/send/?phone=${phoneNumber}&text=${message}`;
+            window.location.href = whatsappURL;
         });
 
         // WhatsApp for "No" response
@@ -621,8 +621,8 @@
         noWhatsappBtn.addEventListener('click', (e) => {
             e.preventDefault();
             const message = encodeURIComponent('Hey, I saw your Valentine\'s ask. Let\'s chat 💬');
-            const whatsappURL = `https://wa.me/${phoneNumber}?text=${message}`;
-            window.open(whatsappURL, '_blank');
+            const whatsappURL = `https://api.whatsapp.com/send/?phone=${phoneNumber}&text=${message}`;
+            window.location.href = whatsappURL;
         });
 
         // Back button handlers
